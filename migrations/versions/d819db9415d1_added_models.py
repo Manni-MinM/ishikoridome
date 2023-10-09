@@ -1,8 +1,8 @@
 """added models
 
-Revision ID: 20a74853e88e
+Revision ID: d819db9415d1
 Revises: 
-Create Date: 2023-10-09 11:33:47.167004
+Create Date: 2023-10-09 22:38:10.261592
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '20a74853e88e'
+revision = 'd819db9415d1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -24,11 +24,13 @@ def upgrade():
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('national_id', sa.String(length=10), nullable=False),
     sa.Column('ip_address', sa.String(length=15), nullable=False),
-    sa.Column('photo1', sa.LargeBinary(), nullable=False),
-    sa.Column('photo2', sa.LargeBinary(), nullable=False),
+    sa.Column('photo1_s3_url', sa.String(length=255), nullable=False),
+    sa.Column('photo2_s3_url', sa.String(length=255), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('national_id')
+    sa.UniqueConstraint('national_id'),
+    sa.UniqueConstraint('photo1_s3_url'),
+    sa.UniqueConstraint('photo2_s3_url')
     )
     # ### end Alembic commands ###
 
