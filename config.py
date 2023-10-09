@@ -6,13 +6,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    DEBUG = True
     DB_HOST = os.environ.get("DB_HOST", "")
     DB_NAME = os.environ.get("DB_NAME", "")
     DB_PORT = os.environ.get("DB_PORT", "5432")
     DB_USER = os.environ.get("DB_USER", "root")
     DB_PASSWORD = os.environ.get("DB_PASSWORD", "root")
-    # TODO: add s3 keys
-    S3_ACCESS_KEY = "<dummy>"
-    S3_SECRET_KEY = "<dummy>"
     SQLALCHEMY_DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    S3_ACCESS_KEY = os.environ.get("S3_ACCESS_KEY", "")
+    S3_SECRET_KEY = os.environ.get("S3_SECRET_KEY", "")
+    S3_ENDPOINT_URL = os.environ.get("S3_ENDPOINT_URL", "")
+    S3_BUCKET_NAME= os.environ.get("S3_BUCKET_NAME", "images")
+    S3_CONNECTION_RETRIES = int(os.environ.get("S3_CONNECTION_RETRIES", "3"))
+    S3_CONNECTION_TIMEOUT_SECONDS = int(os.environ.get("S3_CONNECTION_TIMEOUT_SECONDS", "60"))
