@@ -3,10 +3,11 @@ import json
 import os
 import uuid
 
-from config import Config
 from api.post import db
 from api.post.models import UserData
+from config import Config
 from s3.client import S3Client
+from utils.hash import Hasher
 
 from flask import Flask, request, jsonify
 from flask_migrate import Migrate
@@ -23,6 +24,7 @@ s3 = S3Client()
 def save_to_s3(file):
     _, ext = os.path.splitext(file.filename)
     filename_with_ext = f"{uuid.uuid4()}{ext}"
+
     return s3.put_object(file, filename_with_ext)
 
 @app.route("/api", methods=["POST"])
@@ -34,7 +36,9 @@ def request_api():
 
     email = request_json["email"]
     name = request_json["name"]
-    national_id = request_json["national_id"]
+
+    national_id_salt = Hasher.generate_salt()
+    national_id = Hasher.hash(request_json["national_id"], salt=national_id_salt)
 
     photo1 = request.files['photo1']
     photo2 = request.files['photo2']
@@ -47,6 +51,7 @@ def request_api():
         email=email,
         name=name,
         national_id=national_id,
+        national_id_salt=national_id_salt,
         photo1_s3_url=photo1_s3_url,
         photo2_s3_url=photo2_s3_url,
     )
