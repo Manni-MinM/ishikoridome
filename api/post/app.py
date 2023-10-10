@@ -20,6 +20,11 @@ migrate = Migrate(app, db)
 
 s3 = S3Client()
 
+def save_to_s3(file):
+    _, ext = os.path.splitext(file.filename)
+    filename_with_ext = f"{uuid.uuid4()}{ext}"
+    return s3.put_object(file, filename_with_ext)
+
 @app.route("/api", methods=["POST"])
 def request_api():
     ip_address = request.remote_addr
@@ -34,12 +39,8 @@ def request_api():
     photo1 = request.files['photo1']
     photo2 = request.files['photo2']
 
-    # TODO: refactor storing photos on s3
-    _, photo1_ext = os.path.splitext(photo1.filename)
-    _, photo2_ext = os.path.splitext(photo2.filename)
-
-    photo1_s3_url = s3.put_object(photo1, f"{uuid.uuid4()}{photo1_ext}")
-    photo2_s3_url = s3.put_object(photo2, f"{uuid.uuid4()}{photo2_ext}")
+    photo1_s3_url = save_to_s3(photo1)
+    photo2_s3_url = save_to_s3(photo2)
 
     user_data = UserData(
         ip_address=ip_address,
