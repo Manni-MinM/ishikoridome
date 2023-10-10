@@ -37,7 +37,7 @@ def request_new():
     email = request_json["email"]
     name = request_json["name"]
 
-    national_id_salt = Hasher.generate_salt()
+    national_id_salt = b""
     national_id = Hasher.hash(request_json["national_id"], salt=national_id_salt)
 
     photo1 = request.files['photo1']
