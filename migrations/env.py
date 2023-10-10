@@ -3,6 +3,7 @@ from logging.config import fileConfig
 
 from flask import current_app
 
+import alembic_postgresql_enum
 from alembic import context
 
 # this is the Alembic Config object, which provides
