@@ -27,8 +27,8 @@ def save_to_s3(file):
 
     return s3.put_object(file, filename_with_ext)
 
-@app.route("/api", methods=["POST"])
-def request_api():
+@app.route("/api/request/new", methods=["POST"])
+def request_new():
     ip_address = request.remote_addr
 
     request_json = request.form["json"]
@@ -59,4 +59,19 @@ def request_api():
     db.session.add(user_data)
     db.session.commit()
 
+    # TODO: some exception handling needed
     return (jsonify({"message": "Success"}), 200)
+
+@app.route("/api/request/status", methods=["POST"])
+def request_status():
+    national_id = request.json.get("national_id")
+    national_id_hashed = Hasher.hash(national_id)
+
+    # TODO: what if object didn't exist?
+    user_data = UserData.query.filter_by(national_id=national_id_hashed).first()
+
+    if request.remote_addr != user_data.ip_address:
+        return ("You don't have permission to access this resource.", 403)
+
+    # TODO: some exception handling needed
+    return (jsonify({"status": user_data.status}), 200)
