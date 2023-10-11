@@ -1,9 +1,13 @@
 import click
 
-from apps.post.app import app
+from apps.post import s3
 
-from flask import Flask
+from flask import Blueprint
 
-@app.cli.command("create-base-bucket")
+
+commands_bp = Blueprint("cmd", __name__)
+
+@commands_bp.cli.command("create-base-bucket", help="Create S3 base bucket for application.")
 def create_base_bucket():
-    pass
+    s3.create_base_bucket()
+    click.echo("created base bucket.")
