@@ -1,4 +1,4 @@
-from api.post import db
+from apps.post import db
 
 from sqlalchemy.dialects import postgresql
 

@@ -3,8 +3,8 @@ import json
 import os
 import uuid
 
-from api.post import db
-from api.post.models import UserData
+from apps.post import db
+from apps.post.models import UserData
 from config import Config
 from s3.client import S3Client
 from utils.hash import Hasher
