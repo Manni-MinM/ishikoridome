@@ -3,7 +3,7 @@ import json
 import os
 import uuid
 
-from apps.post import db, s3
+from apps.post import db, s3, rbmq
 from apps.post.models import UserData
 from utils.hash import Hasher
 
@@ -47,8 +47,11 @@ def request_new():
         photo2_s3_url=photo2_s3_url,
     )
 
+    # TODO: error handling for db and rbmq
     db.session.add(user_data)
     db.session.commit()
+
+    rbmq.publish_message(national_id)
 
     # TODO: some exception handling needed
     return (jsonify({"message": "Success"}), 200)
