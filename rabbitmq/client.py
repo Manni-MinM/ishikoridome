@@ -25,7 +25,7 @@ class RabbitMQClient:
         message = {"national_id": national_id}
         self.channel.basic_publish(exchange="", routing_key=self.queue_name, body=str(message))
 
-    def consume_messages(self, func):
+    def process_messages(self, func):
         def callback(ch, method, properties, body):
             message = eval(body)
             national_id = message.get("national_id")

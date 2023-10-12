@@ -15,4 +15,4 @@ def log(national_id):
 
 with app.app_context():
     # TODO: error handling for connection to rbmq
-    rbmq.consume_messages(log)
+    rbmq.process_messages(log)
