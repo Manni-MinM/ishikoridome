@@ -8,6 +8,7 @@ from requests.packages.urllib3.util.retry import Retry
 class TaggingException(Exception):
     pass
 
+
 class ImageAPIClient:
     def __init__(self):
         self.base_url = "https://api.imagga.com/v2"
