@@ -1,4 +1,4 @@
-from apps.similarity_check import db, rbmq
+from apps.status import db, rbmq
 from config import Config
 
 from flask import Flask
