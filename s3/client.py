@@ -33,7 +33,12 @@ class S3Client:
     def put_object(self, file, object_key):
         self.client.upload_fileobj(file, self.bucket_name, object_key)
 
-        return f"s3://{self.bucket_name}/{object_key}"
+        return object_key
+
+    def get_object(self, object_key):
+        resp = self.client.get_object(Bucket=self.bucket_name, Key=object_key)
+
+        return resp["Body"].read()
 
     def list_object_keys(self):
         resp = self.client.list_objects_v2(Bucket=self.bucket_name)
