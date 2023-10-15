@@ -1,3 +1,5 @@
+import logging
+
 from apps.post import models
 from apps.status import db, s3, rbmq, imagga
 from apps.status.image_api import client
@@ -5,6 +7,17 @@ from config import Config
 
 from flask import Flask
 
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+log_handler = logging.StreamHandler()
+log_handler.setLevel(logging.INFO)
+log_handler.setFormatter(
+    logging.Formatter("%(asctime)s - %(levelname)s: %(message)s")
+)
+
+logger.addHandler(log_handler)
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -32,20 +45,25 @@ def process(national_id):
         photo2_has_face, photo2_face_id = face_tagged(user_data.photo2_s3_url, confidence_threshold) 
 
         if photo1_has_face and photo2_has_face:
-            print(f"[SUCCESS] images of user with email: {user_data.email} are valid.")
+            logger.info(f"[SUCCESS] images of user with email: {user_data.email} are valid.")
 
             similarity_threshold = Config.IMAGGA_SIMILARITY_CONFIDENCE_THRESHOLD
             similarity_threshold_met = imagga.face_similarity(photo1_face_id, photo2_face_id, similarity_threshold)
 
             if similarity_threshold_met:
-                print(f"[SUCCESS] minimum similarity threshold for user with email: {user_data.email} met.")
+                user_data.status = "accepted"
+                logger.info(f"[SUCCESS] minimum similarity threshold for user with email: {user_data.email} met.")
             else:
-                print(f"[FAIL] minimum similarity threshold for user with email: {user_data.email} not met.")
+                user_data.status = "rejected"
+                logger.error(f"[FAIL] minimum similarity threshold for user with email: {user_data.email} not met.")
         else:
-            print(f"[FAIL] images of user with email: {user_data.email} are invalid.")
+            user_data.status = "rejected"
+            logger.error(f"[FAIL] images of user with email: {user_data.email} are invalid.")
 
     except Exception as err:
-        print(f"[ERROR] request failed due to following error: {err}")
+        logger.critical(f"[CRITICAL] request failed due to following error: {err}")
+
+    db.session.commit()
 
 with app.app_context():
     # TODO: error handling for connection to rbmq
