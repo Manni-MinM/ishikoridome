@@ -27,6 +27,7 @@ class ImageAPIClient:
             url,
             timeout=self.timeout,
             files={"image": photo},
+            params={"return_face_id": 1},
         )
 
         resp.raise_for_status()
@@ -41,3 +42,19 @@ class ImageAPIClient:
             return face
 
         raise TaggingException("confidence threshold not met.")
+
+    def face_similarity(self, photo1_face_id, photo2_face_id, threshold):
+        url = f"{self.base_url}/faces/similarity"
+
+        resp = self.session.get(
+            url,
+            timeout=self.timeout,
+            params={"face_id": photo1_face_id, "second_face_id": photo2_face_id},
+        )
+
+        resp.raise_for_status()
+
+        data = resp.json()
+        similarity = data["result"]["score"]
+
+        return (similarity >= threshold)
