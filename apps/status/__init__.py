@@ -1,3 +1,4 @@
+from apps.status.mail.client import MailgunClient
 from apps.status.image_api.client import ImageAPIClient
 from rabbitmq.client import RabbitMQClient
 from s3.client import S3Client
@@ -9,3 +10,4 @@ s3 = S3Client()
 db = SQLAlchemy()
 rbmq = RabbitMQClient()
 imagga = ImageAPIClient()
+mailgun = MailgunClient()

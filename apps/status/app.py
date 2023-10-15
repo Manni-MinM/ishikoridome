@@ -1,7 +1,7 @@
 import logging
 
 from apps.post import models
-from apps.status import db, s3, rbmq, imagga
+from apps.status import db, s3, rbmq, imagga, mailgun
 from apps.status.image_api import client
 from config import Config
 
@@ -64,6 +64,11 @@ def process(national_id):
         logger.critical(f"[CRITICAL] request failed due to following error: {err}")
 
     db.session.commit()
+
+    # TODO: change from hardcode or refactor function
+    subject = "Your request has been processed"
+    text = f"Your request status has changed to {user_data.status}."
+    mailgun.send_mail(user_data.email, subject, text)
 
 with app.app_context():
     # TODO: error handling for connection to rbmq
