@@ -8,6 +8,7 @@ from apps.post.models import UserData
 from utils.hash import Hasher
 
 from flask import Blueprint, request, jsonify
+from sqlalchemy.exc import IntegrityError
 
 
 routes_bp = Blueprint("routes", __name__)
@@ -47,13 +48,16 @@ def request_new():
         photo2_s3_url=photo2_s3_url,
     )
 
-    # TODO: error handling for db and rbmq
-    db.session.add(user_data)
-    db.session.commit()
+    try:
+        db.session.add(user_data)
+        db.session.commit()
+
+    except IntegrityError:
+        db.session.rollback()
+        return (jsonify({"message": "User already exists in database."}), 200)
 
     rbmq.publish_message(national_id)
 
-    # TODO: some exception handling needed
     return (jsonify({"message": "Success"}), 200)
 
 @routes_bp.route("/api/request/status", methods=["POST"])
@@ -61,11 +65,12 @@ def request_status():
     national_id = request.json.get("national_id")
     national_id_hashed = Hasher.hash(national_id)
 
-    # TODO: what if object didn't exist?
     user_data = UserData.query.filter_by(national_id=national_id_hashed).first()
 
-    if request.remote_addr != user_data.ip_address:
-        return ("You don't have permission to access this resource.", 403)
+    if user_data is None:
+        return (jsonify({"error": "No such user exists in database."}), 404)
 
-    # TODO: some exception handling needed
+    if request.remote_addr != user_data.ip_address:
+        return (jsonify({"error": "You don't have permission to access this resource."}), 403)
+
     return (jsonify({"status": user_data.status}), 200)

@@ -65,11 +65,14 @@ def process(national_id):
 
     db.session.commit()
 
-    # TODO: change from hardcode or refactor function
-    subject = "Your request has been processed"
-    text = f"Your request status has changed to {user_data.status}."
-    mailgun.send_mail(user_data.email, subject, text)
+    try:
+        subject = "Your request has been processed"
+        text = f"Your request status has changed to {user_data.status}."
+        mailgun.send_mail(user_data.email, subject, text)
+        logger.info(f"[SUCCESS] sent status update mail for user with email: {user_data.email}.")
+
+    except Exception as err:
+        logger.critical(f"[CRITICAL] failed to send email due to following error: {err}")
 
 with app.app_context():
-    # TODO: error handling for connection to rbmq
     rbmq.process_messages(process)
